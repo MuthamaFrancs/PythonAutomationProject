@@ -8,27 +8,36 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
 }
 
-#Fetch the r/marketing page and extract up to 20 posts.
+print(f"Starting Reddit marketing scraper from:{URL}")
+
+try:
+    response = requests.get(URL, headers=headers)
+    response.raise_for_status()
+    print(f"Status Code:{response.status_code}","Connection to Reddit marketing page successful.")
+except requests.exceptions.RequestException as e:
+    print(f"Error connecting to Reddit marketing page: {e}")
+
+soup = BeautifulSoup(response.content, "html.parser")
+posts = []
+
 def scrape_reddit_marketing():
     
-    #send a GET request to the URL
-    response = requests.get(URL, headers=headers)
-    soup = BeautifulSoup(response.content, "html.parser")
+    for post in soup.find_all("shreddit-post",):
+        #Extract title and upvotes
+        #title_element = post.find("a", atrrs={'slot':'full-post-link'})
+        #title = title_element.get_text(strip=True) if title_element else None
+        title = post.get('post-title')
 
-    posts = []
-    for post in soup.find_all("shreddit-post", limit=20):
-        title = post.get("post-title")
-        upvotes = post.get("post-upvotes")
-        
-        # Convert upvotes to int if present, otherwise use "0"
-        if title:
-            posts.append({
-                "title": title,
-                "upvotes": int(upvotes) if upvotes else "0"
-            })
-    
+        #upvotes_element = post.find('faceplate-number')
+        #upvotes = upvotes_element.get('number') if upvotes_element else 
+        upvotes = post.get('score')
+
+        posts.append({
+            "title": title, 
+            "upvotes": int(upvotes) if upvotes else 0
+        })
+
+    print(f"Successfully scraped  {len(posts)} posts from Reddit marketing.")
     return posts
 
-# Handle HTTP response errors status_code check timeout
-#Norma;ize upvote strings like 1.2k ro integers
-#Use praw  for reliable data instead of web scraping
+scrape_reddit_marketing()
