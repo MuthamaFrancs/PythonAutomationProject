@@ -1,43 +1,51 @@
 # scraper that pulls titles and upvotes from reddit marketing
 import requests
 from bs4 import BeautifulSoup
+import config
 
-URL = "https://www.reddit.com/r/marketing/"
 
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
-}
+def fetch_html(url, headers):
+    try:
+        print(f'Fetching HTML content from: {url}...')
+        response = requests.get(url, headers=config.HEADERS)
+        response.raise_for_status()
+        return response.text
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching HTML content: {e}")
+        return None
 
-print(f"Starting Reddit marketing scraper from:{URL}")
+soup = BeautifulSoup(fetch_html(config.BASE_URL,config.HEADERS), 'html.parser')
+posts_data = []
 
-try:
-    response = requests.get(URL, headers=headers)
-    response.raise_for_status()
-    print(f"Status Code:{response.status_code}","Connection to Reddit marketing page successful.")
-except requests.exceptions.RequestException as e:
-    print(f"Error connecting to Reddit marketing page: {e}")
-
-soup = BeautifulSoup(response.content, "html.parser")
-posts = []
+posts = soup.select(config.selectors['post_container'])
 
 def scrape_reddit_marketing():
-    
     for post in soup.find_all("shreddit-post",):
         #Extract title and upvotes
-        #title_element = post.find("a", atrrs={'slot':'full-post-link'})
-        #title = title_element.get_text(strip=True) if title_element else None
-        title = post.get('post-title')
+        title_element = post.select_one(config.selectors['title'])
+        title = title_element.text.strip() if title_element else "N/A"
 
-        #upvotes_element = post.find('faceplate-number')
-        #upvotes = upvotes_element.get('number') if upvotes_element else 
-        upvotes = post.get('score')
+        #Extract upvotes
+        upvotes_element = post.select_one(["score"])
+        if upvotes_element and title_element.has_attr("title"):
+            upvotes = upvotes_element["title"]
+        elif upvotes_element:
+            upvotes = upvotes_element.text.strip()
+        else:
+            upvotes = "0"
 
+        #Extract post creation time
+        time_element = post.select_one(config.selectors['time'])
+        created_at = time_element['datetime'] if time_element else None
+
+        #Append extracted data to posts list
         posts.append({
             "title": title, 
-            "upvotes": int(upvotes) if upvotes else 0
+            "upvotes": upvotes,
+            "created_at": created_at
         })
 
-    print(f"Successfully scraped  {len(posts)} posts from Reddit marketing.")
-    return posts
+    print(f"Successfully scraped  {len(posts)} posts from Reddit marketing.\n")
+    return posts_data
 
 scrape_reddit_marketing()
