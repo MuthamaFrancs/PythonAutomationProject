@@ -1,51 +1,46 @@
-# scraper that pulls titles and upvotes from reddit marketing
 import requests
 from bs4 import BeautifulSoup
-import config
+import pandas as pd
 
+class RedditScraper:
+    def __init__(self, subreddit):
+        self.subreddit = subreddit
+        self.url = f"https://old.reddit.com/r/{subreddit}/"
+        # We use 'old.reddit.com' because the HTML structure is more stable for scraping
+        self.headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        }
 
-def fetch_html(url, headers):
-    try:
-        print(f'Fetching HTML content from: {url}...')
-        response = requests.get(url, headers=config.HEADERS)
-        response.raise_for_status()
-        return response.text
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching HTML content: {e}")
-        return None
+    def fetch_page(self):
+        """Fetches the HTML content of the subreddit."""
+        try:
+            response = requests.get(self.url, headers=self.headers)
+            response.raise_for_status() # Raise error for bad status codes (404, 500)
+            return response.text
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching data from Reddit: {e}")
+            return None
 
-soup = BeautifulSoup(fetch_html(config.BASE_URL,config.HEADERS), 'html.parser')
-posts_data = []
+    def parse_data(self, html):
+        """Extracts titles and scores from HTML."""
+        if not html:
+            return []
 
-posts = soup.select(config.selectors['post_container'])
+        soup = BeautifulSoup(html, 'html.parser')
+        posts_data = []
 
-def scrape_reddit_marketing():
-    for post in soup.find_all("shreddit-post",):
-        #Extract title and upvotes
-        title_element = post.select_one(config.selectors['title'])
-        title = title_element.text.strip() if title_element else "N/A"
+        # Find all post containers (on old.reddit, these are divs with class 'thing')
+        posts = soup.find_all('div', class_='thing')
 
-        #Extract upvotes
-        upvotes_element = post.select_one(["score"])
-        if upvotes_element and title_element.has_attr("title"):
-            upvotes = upvotes_element["title"]
-        elif upvotes_element:
-            upvotes = upvotes_element.text.strip()
-        else:
-            upvotes = "0"
+        for post in posts:
+            title = post.find('a', class_='title').text
+            # Scores are stored in a div with class 'score likes'
+            score = post.find('div', class_='score likes').get('title', '0')
+            
+            posts_data.append({
+                'title': title,
+                'score': int(score) if score.isdigit() else 0,
+                'subreddit': self.subreddit
+            })
 
-        #Extract post creation time
-        time_element = post.select_one(config.selectors['time'])
-        created_at = time_element['datetime'] if time_element else None
-
-        #Append extracted data to posts list
-        posts.append({
-            "title": title, 
-            "upvotes": upvotes,
-            "created_at": created_at
-        })
-
-    print(f"Successfully scraped  {len(posts)} posts from Reddit marketing.\n")
-    return posts_data
-
-scrape_reddit_marketing()
+        return posts_data

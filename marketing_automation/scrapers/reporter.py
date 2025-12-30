@@ -1,12 +1,40 @@
 import matplotlib.pyplot as plt
+import seaborn as sns
+import os
+import pandas as pd
 
-def generate_chart(df):
-    top_posts = df.head(10)
+class Reporter:
+    def __init__(self, processed_data):
+        self.df = dataframe
+        os.makedirs('reports', exist_ok=True)  # Ensure reports directory exists
 
-    plt.figure()
-    plt.barh(top_posts["title"], top_posts["upvotes"])
-    plt.xlabel("Upvotes")
-    plt.title("Top Marketing Topics on Reddit")
+    def plot_top_posts(self):
+        # Plot top 10 posts by upvotes
+        top_posts = self.df.nlargest(10, 'upvotes')
+        plt.figure(figsize=(12, 6))
 
-    plt.tight_layout()
-    plt.savefig("reports/charts/top_marketing_topics.png")
+        #barchart
+        plt.barh(top_posts['title'].str[:50] + '...', top_posts['upvotes'], color='skyblue')
+        plt.xlabel('Upvotes')
+        plt.title('Top 10 Reddit Marketing Posts by Upvotes')
+        plt.tight_layout()
+        report_path = 'data/reports/top_10_reddit_marketing_posts.png'
+        plt.savefig(report_path)
+        plt.close()
+        print(f"Report saved to {report_path}")
+
+def generate_chart(dataframe):
+    reporter = Reporter(dataframe)
+    reporter.plot_top_posts()  
+
+def print_summary_stats(self):
+
+    print("\n --- Summary Statistics ---")
+    print(f"Total Posts Scraped: {len(self.df)}")
+    print(f"Average Upvotes: {self.df['upvotes'].mean():.2f}")
+    print(f"Highest Upvotes: {self.df['upvotes'].max()}")
+    print(f"Lowest Upvotes: {self.df['upvotes'].min()}")
+    print("--------------------------\n")
+
+    
+
