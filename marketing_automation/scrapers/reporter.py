@@ -5,7 +5,7 @@ import pandas as pd
 
 class Reporter:
     def __init__(self, processed_data):
-        self.df = dataframe
+        self.df = processed_data
         os.makedirs('reports', exist_ok=True)  # Ensure reports directory exists
 
     def plot_top_posts(self):
@@ -18,23 +18,21 @@ class Reporter:
         plt.xlabel('Upvotes')
         plt.title('Top 10 Reddit Marketing Posts by Upvotes')
         plt.tight_layout()
-        report_path = 'data/reports/top_10_reddit_marketing_posts.png'
+        report_path = 'reports/top_10_reddit_marketing_posts.png'
         plt.savefig(report_path)
         plt.close()
         print(f"Report saved to {report_path}")
+    
+    def print_summary_stats(self):
+        print("\n --- Summary Statistics ---")
+        print(f"Total Posts Scraped: {len(self.df)}")
+        print(f"Average Upvotes: {self.df['upvotes'].mean():.2f}")
+        print(f"Highest Upvotes: {self.df['upvotes'].max()}")
+        print(f"Lowest Upvotes: {self.df['upvotes'].min()}")
+        print("--------------------------\n")
 
 def generate_chart(dataframe):
     reporter = Reporter(dataframe)
     reporter.plot_top_posts()  
-
-def print_summary_stats(self):
-
-    print("\n --- Summary Statistics ---")
-    print(f"Total Posts Scraped: {len(self.df)}")
-    print(f"Average Upvotes: {self.df['upvotes'].mean():.2f}")
-    print(f"Highest Upvotes: {self.df['upvotes'].max()}")
-    print(f"Lowest Upvotes: {self.df['upvotes'].min()}")
-    print("--------------------------\n")
-
+    reporter.print_summary_stats()
     
-

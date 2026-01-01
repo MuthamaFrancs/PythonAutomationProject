@@ -31,7 +31,7 @@ class RedditScraper:
 
         # Find all post containers (on old.reddit, these are divs with class 'thing')
         posts = soup.find_all('div', class_='thing')
-
+ 
         for post in posts:
             title = post.find('a', class_='title').text
             # Scores are stored in a div with class 'score likes'
@@ -39,7 +39,7 @@ class RedditScraper:
             
             posts_data.append({
                 'title': title,
-                'score': int(score) if score.isdigit() else 0,
+                'upvotes': int(score) if score.isdigit() else 0,
                 'subreddit': self.subreddit
             })
 

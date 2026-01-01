@@ -8,19 +8,19 @@ def run_marketing_automation(subreddit_name):
 
     # Step 1: Scrape data from Reddit marketing subreddit - Extract
     scraper = RedditScraper(subreddit_name)
-    raw_data = scraper.fetch_page()
+    raw_html = scraper.fetch_page()
 
-    if not raw_data:
+    if not raw_html:
         print("No data scraped. Exiting pipeline.")
         return
     
-    raw_posts = scraper.parse_data(raw_data)
+    raw_posts = scraper.parse_data(raw_html)
     print(f"Scraped {len(raw_posts)} posts from r/{subreddit_name}.\n")
     
 
     # Step 2: Process the scraped data - Transform
     print("Processing and cleaning data...\n")
-    processor = DataProcessor(raw_data)
+    processor = DataProcessor(raw_posts)
     processor.clean_data()
     processed_df = processor.save_processed_data()
 

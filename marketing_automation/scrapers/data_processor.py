@@ -2,8 +2,10 @@ import pandas as pd
 import os
 
 class DataProcessor:
-    def __init__(self, raw_data):
-        self.df = pd.DataFrame(raw_data) # Initialize DataFrame from raw data
+    def __init__(self, posts_data):
+        print(f'Type of raw data received: {type(posts_data)}')
+
+        self.df = pd.DataFrame(posts_data) # Initialize DataFrame from raw data
 
     def clean_data(self):
 
@@ -43,3 +45,4 @@ class DataProcessor:
         self.df.to_csv(path, index=False)
         print(f"Processed data saved to {path}")
         return self.df
+    
