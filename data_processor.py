@@ -3,8 +3,6 @@ import os
 
 class DataProcessor:
     def __init__(self, posts_data):
-        print(f'Type of raw data received: {type(posts_data)}')
-
         self.df = pd.DataFrame(posts_data) # Initialize DataFrame from raw data
 
     def clean_data(self):
@@ -21,7 +19,7 @@ class DataProcessor:
         # Fill missing upvotes with 0
         self.df['upvotes'] = self.df['upvotes'].fillna(0)
 
-        print(f"Cleaned data: removed {initial_count - len(self.df)} duplicate rows.")
+        print(f"[INFO] Cleaned data: removed {initial_count - len(self.df)} duplicate rows.\n")
 
         #Title length filter
         self.df['title_length'] = self.df['title'].apply(len)
@@ -43,6 +41,6 @@ class DataProcessor:
         os.makedirs('data/processed', exist_ok=True )# ensure directory exists if not creates it
         path = os.path.join('data', 'processed', filename)
         self.df.to_csv(path, index=False)
-        print(f"Processed data saved to {path}")
+        print(f"[INFO] Processed data saved to {path}\n")
         return self.df
     

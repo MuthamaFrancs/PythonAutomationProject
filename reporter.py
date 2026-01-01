@@ -24,12 +24,12 @@ class Reporter:
         print(f"Report saved to {report_path}")
     
     def print_summary_stats(self):
-        print("\n --- Summary Statistics ---")
-        print(f"Total Posts Scraped: {len(self.df)}")
-        print(f"Average Upvotes: {self.df['upvotes'].mean():.2f}")
-        print(f"Highest Upvotes: {self.df['upvotes'].max()}")
-        print(f"Lowest Upvotes: {self.df['upvotes'].min()}")
-        print("--------------------------\n")
+        print("\n ------- SUMMARY STATISTICS --------- \n")
+        print(f"\t Total Posts Scraped: {len(self.df)}")
+        print(f"\t Average Upvotes: {self.df['upvotes'].mean():.2f}")
+        print(f"\t Highest Upvotes: {self.df['upvotes'].max()}")
+        print(f"\t Lowest Upvotes: {self.df['upvotes'].min()}\n")
+        print("--------------------------------------- \n")
 
 def generate_chart(dataframe):
     reporter = Reporter(dataframe)
